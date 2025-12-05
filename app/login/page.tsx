@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { signUpWithEmail, loginWithEmail, signInWithGoogle, sendResetPasswordEmail } from "../lib/auth"; 
 import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "../path/to/firebase";
+// import { auth } from "../lib/firebase";
 
 export default function LoginPage() {
   const [action, setAction] = useState("Login");
@@ -11,10 +11,10 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<Message | null>(null); // success or error
+  const [msg, setMsg] = useState<Message | null>(null); 
   const [user, setUser] = useState(null);
 
-  interface Message {
+  type Message = {
     type: "success" | "error" | "info"; // Or other message types
     text: string;
   }
@@ -30,6 +30,43 @@ export default function LoginPage() {
     });
     return () => unsub();
   }, []);
+
+  const resetMsg = () => setMsg(null);
+
+  async function handleEmailAuth(e) {
+    e?.preventDefault();
+
+    resetMsg();
+    
+    if (!email || !password || (action === "Sign Up" && !name)) {
+      setMsg({ type: "error", text: "Please fill all required fields." });
+      return;
+    }
+    setLoading(true);
+    try {
+      if (action === "Sign Up") {
+        await signUpWithEmail(name.trim(), email.trim(), password);
+        setMsg({ type: "success", text: "Account created. You are now signed in." });
+      } else {
+        await loginWithEmail(email.trim(), password);
+        setMsg({ type: "success", text: "Welcome back!" });
+      }
+    } catch (err) {
+      // friendly error messages (firebase throws codes we can check)
+      const code = err?.code || err?.message || "auth/error";
+
+      let friendly = "Something went wrong. Please try again.";
+
+      if (code.includes("auth/email-already-in-use")) friendly = "Email already in use.";
+      if (code.includes("auth/invalid-email")) friendly = "Invalid email address.";
+      if (code.includes("auth/wrong-password")) friendly = "Incorrect password.";
+      if (code.includes("auth/user-not-found")) friendly = "No account found with this email.";
+      if (code.includes("auth/weak-password")) friendly = "Weak password; choose a stronger one.";
+      setMsg({ type: "error", text: friendly });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center  bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-90 relative overflow-hidden">
