@@ -11,13 +11,16 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<Message | null>(null); 
-  const [user, setUser] = useState(null);
 
   type Message = {
     type: "success" | "error" | "info"; // Or other message types
     text: string;
   }
+
+  const [msg, setMsg] = useState<Message | null>(null); 
+  const [user, setUser] = useState<User | null>(null);
+
+
 
   useEffect(() => {
     // optional: listen to auth state and redirect if already logged in
@@ -33,7 +36,7 @@ export default function LoginPage() {
 
   const resetMsg = () => setMsg(null);
 
-  async function handleEmailAuth(e) {
+  async function handleEmailAuth(e: React.FormEvent<HTMLFormElement>) {
     e?.preventDefault();
 
     resetMsg();
