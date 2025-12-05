@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { signUpWithEmail, loginWithEmail, signInWithGoogle, sendResetPasswordEmail } from "../lib/auth"; 
 import { onAuthStateChanged, User } from "firebase/auth";
-// import { auth } from "../lib/firebase";
+import { auth } from "../lib/firebase";
 
 export default function LoginPage() {
   const [action, setAction] = useState("Login");
