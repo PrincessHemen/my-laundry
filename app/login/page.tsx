@@ -54,9 +54,10 @@ export default function LoginPage() {
         await loginWithEmail(email.trim(), password);
         setMsg({ type: "success", text: "Welcome back!" });
       }
-    } catch (err) {
-      // friendly error messages (firebase throws codes we can check)
-      const code = err?.code || err?.message || "auth/error";
+    } catch (err: unknown) {
+      const firebaseErr = err as { code?: string; message?: string };
+      const code = firebaseErr.code || firebaseErr.message || "auth/error";
+    
 
       let friendly = "Something went wrong. Please try again.";
 
