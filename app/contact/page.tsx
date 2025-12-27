@@ -1,4 +1,10 @@
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Contact",
+};
+
 export default function contactPage() {
     return (
         <div className="min-h-screen flex flex-col items-center content-center  bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-900 text-blue-900 relative overflow-hidden">

@@ -4,23 +4,52 @@ import { useState, useEffect } from "react";
 import { signUpWithEmail, loginWithEmail, signInWithGoogle, sendResetPasswordEmail } from "../lib/auth"; 
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "../lib/firebase";
+import { useRouter } from "next/navigation";
+import { z } from "zod";
+
+
+// ------------------
+// TYPES
+// ------------------
+
+type AuthAction = "Login" | "Sign Up";
+
+type Message = {
+  type: "success" | "error" | "info"; // Or other message types
+  text: string;
+}
+
+// ------------------
+// ZOD SCHEMAS
+// ------------------
+
+const loginSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+});
+
+const signUpSchema = loginSchema.extend({
+  name: z.string().min(1, { message: "Name is required" }),
+});
+
 
 export default function LoginPage() {
-  const [action, setAction] = useState("Login");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  type Message = {
-    type: "success" | "error" | "info"; // Or other message types
-    text: string;
-  }
+  useEffect(() => {
+    document.title = "Login | MyLaundry";
+  }, [])
 
+  const [action, setAction] = useState<AuthAction>("Login");
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
   const [msg, setMsg] = useState<Message | null>(null); 
   const [user, setUser] = useState<User | null>(null);
 
-
+  // ------------------
+  // AUTH STATE CHECK 
+  // ------------------
 
   useEffect(() => {
     // optional: listen to auth state and redirect if already logged in
@@ -29,6 +58,7 @@ export default function LoginPage() {
       if (u) {
         setMsg({ type: "success", text: `Signed in as ${u.displayName || u.email}` });
         // TODO: redirect to app/dashboard if desired
+        router.replace("/dashboard");
       }
     });
     return () => unsub();
@@ -36,16 +66,36 @@ export default function LoginPage() {
 
   const resetMsg = () => setMsg(null);
 
+  // ------------------
+  // EMAIL LOGIN / SIGNUP
+  // ------------------
+
   async function handleEmailAuth(e: React.FormEvent<HTMLFormElement>) {
     e?.preventDefault();
 
     resetMsg();
     
-    if (!email || !password || (action === "Sign Up" && !name)) {
-      setMsg({ type: "error", text: "Please fill all required fields." });
-      return;
+    try {
+      // Choose schema based on action
+      const schema = action === "Sign Up" ? signUpSchema : loginSchema;
+    
+      // Validate form data
+      schema.parse({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+      });
+    } catch (err: any) {
+      if (err instanceof z.ZodError) {
+        // Show first validation error
+        setMsg({ type: "error", text: err.errors[0].message });
+        return;
+      }
+      throw err; // rethrow for Firebase error handling
     }
+    
     setLoading(true);
+    
     try {
       if (action === "Sign Up") {
         await signUpWithEmail(name.trim(), email.trim(), password);
@@ -54,10 +104,8 @@ export default function LoginPage() {
         await loginWithEmail(email.trim(), password);
         setMsg({ type: "success", text: "Welcome back!" });
       }
-    } catch (err: unknown) {
-      const firebaseErr = err as { code?: string; message?: string };
-      const code = firebaseErr.code || firebaseErr.message || "auth/error";
-    
+    } catch (err: any) {
+      const code = err?.code || err?.message || "auth/error";
 
       let friendly = "Something went wrong. Please try again.";
 
@@ -66,11 +114,81 @@ export default function LoginPage() {
       if (code.includes("auth/wrong-password")) friendly = "Incorrect password.";
       if (code.includes("auth/user-not-found")) friendly = "No account found with this email.";
       if (code.includes("auth/weak-password")) friendly = "Weak password; choose a stronger one.";
+
       setMsg({ type: "error", text: friendly });
     } finally {
       setLoading(false);
     }
   }
+
+  // ------------------
+  // GOOGLE LOGIN
+  // ------------------
+
+  async function handleGoogle(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault()
+
+    resetMsg()
+
+    setLoading(true)
+
+    try {
+      await signInWithGoogle()
+      setMsg({type: "success", text: "Signed in with Google."})
+    } catch {
+      setMsg({type: "error", text: "Google Sign In Failed."})
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // ------------------
+  // FORGOT PASSWORD
+  // ------------------
+
+  async function handleForgotPassword() {
+    resetMsg()
+
+    if (!email.trim()) {
+      setMsg({type: "error", text: "Enter your email to reset the password."})
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      await sendResetPasswordEmail(email.trim())
+      setMsg({type: "success", text: "Password reset email sent."})
+    } catch {
+      setMsg({type: "error", text: "Could not send password reset email."})
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const router = useRouter(); 
+
+  // If User already logged in
+
+  if (user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="p-6 bg-white shadow rounded text-center">
+          <p className="mb-4">You are already signed in.</p>
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="px-4 py-2 bg-indigo-900 text-white rounded"
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ------------------
+  // UI RENDER
+  // ------------------
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center  bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-90 relative overflow-hidden">
@@ -83,14 +201,30 @@ export default function LoginPage() {
           <div className="w-20 h-1 bg-indigo-900 mx-auto mt-2 rounded-full"></div>
         </div>
 
+        {/* FEEDBACK MESSAGE */}
+        {msg && (
+          <div
+            className={`mb-4 px-4 py-2 rounded ${
+              msg.type === "error"
+                ? "bg-red-100 text-red-800"
+                : "bg-green-100 text-green-800"
+            }`}
+          >
+            {msg.text}
+          </div>
+        )}
+
         {/* FORM */}
-        <div className="space-y-5">
+        <form onSubmit={handleEmailAuth} className="space-y-5">
 
           {/* Name field only for Sign Up */}
           {action === "Sign Up" && (
             <input
               type="text"
               placeholder="Your name"
+              value={name}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+              disabled={loading}
               className="w-full h-12 px-4 rounded-lg border border-gray-300 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-300 outline-none text-gray-700"
             />
           )}
@@ -98,55 +232,86 @@ export default function LoginPage() {
           <input
             type="email"
             placeholder="Your email"
+            value={email}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+            disabled={loading} 
             className="w-full h-12 px-4 rounded-lg border border-gray-300 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-300 outline-none text-gray-700"
           />
 
           <input
             type="password"
             placeholder="Your password"
+            value={password}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+            disabled={loading} 
             className="w-full h-12 px-4 rounded-lg border border-gray-300 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-300 outline-none text-gray-700"
           />
-        </div>
+
+          {/* SUBMIT BUTTON */}
+          <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-indigo-900 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+          >
+            {loading ? "Please wait..." : action === "Sign Up" ? "Create Account" : "Login"}
+          </button>
+
+          {/* TOGGLE BUTTONS */}
+          <div className="flex items-center justify-between mt-4">
+            <button
+            type="button"
+            onClick={() => { setAction("Login"); resetMsg(); }}
+            className={`w-[48%] py-3 rounded-lg text-lg font-semibold transition ${
+            action === "Login"
+            ? "bg-indigo-900 text-white shadow-lg"
+            : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+            }`}
+            >
+              Login
+            </button>
+
+            <button
+            type="button"
+            onClick={() => { setAction("Sign Up"); resetMsg(); }}
+            className={`w-[48%] py-3 rounded-lg text-lg font-semibold transition ${
+            action === "Sign Up"
+            ? "bg-indigo-900 text-white shadow-lg"
+            : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+            }`}
+            >
+              Sign Up
+            </button>
+          </div>
+
+        </form>
 
         {/* LOST PASSWORD (Login only) */}
         {action === "Login" && (
           <div className="text-right mt-4 text-gray-600 text-sm">
             Lost Password?{" "}
-            <span className="text-indigo-800 font-semibold cursor-pointer">
+            <span onClick={handleForgotPassword} className="text-indigo-800 font-semibold cursor-pointer">
               Click here
             </span>
           </div>
         )}
 
         {/* GOOGLE BUTTON */}
-        <button className="mt-6 w-full bg-indigo-900 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition hover:cursor-pointer">
-          {action === "Sign Up" ? "Sign Up with Google" : "Log In with Google"}
+        <button 
+          type="button"
+          disabled={loading}
+          onClick={handleGoogle}
+          className="mt-6 w-full bg-indigo-900 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition hover:cursor-pointer">
+            
+            {loading ? "Please wait..." : action === "Sign Up" ? "Sign In with Google" : "Log in with Google"}
+        
         </button>
 
-        {/* TOGGLE BUTTONS */}
-        <div className="flex items-center justify-between mt-8">
-          <button
-            onClick={() => setAction("Login")}
-            className={`w-[48%] py-3 rounded-lg hover:cursor-pointer text-lg font-semibold transition ${
-              action === "Login"
-                ? "bg-indigo-900 text-white shadow-lg"
-                : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-            }`}
-          >
-            Login
-          </button>
-
-          <button
-            onClick={() => setAction("Sign Up")}
-            className={`w-[48%] py-3 rounded-lg hover:cursor-pointer text-lg font-semibold transition ${
-              action === "Sign Up"
-                ? "bg-indigo-900 text-white shadow-lg"
-                : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-            }`}
-          >
-            Sign Up
-          </button>
-        </div>
+        {/* SHOW CURRENT USER */}
+        {user && (
+          <p className="mt-4 text-gray-700 font-semibold text-sm">
+            Signed in as: {user.displayName || user.email}
+          </p>
+        )}
 
       </div>
     </div>
