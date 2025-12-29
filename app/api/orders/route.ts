@@ -9,10 +9,10 @@ function validateOrderBody(body: any): { valid: boolean; message?: string } {
     'userId',
     'customerName',
     'customerEmail',
-    'customerPhone',
     'pickupAddress',
     'dropoffAddress',
     'pickupDate',
+    'dropoffDate',
     'items',
     'totalAmount'
   ];
@@ -88,10 +88,10 @@ export async function POST(request: Request) {
       userId: body.userId,
       customerName: body.customerName,
       customerEmail: body.customerEmail,
-      customerPhone: body.customerPhone,
       pickupAddress: body.pickupAddress,
       dropoffAddress: body.dropoffAddress,
       pickupDate: body.pickupDate,
+      dropoffDate: body.dropoffDate,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       items: body.items as ClothingItem[],
