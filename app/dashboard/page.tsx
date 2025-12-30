@@ -11,7 +11,7 @@ import { auth } from '../lib/firebase';
 import { User } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Order } from '@/app/lib/order';
+import { Order } from '@/app/types/order';
 
 
 const DashboardPage = () => {
