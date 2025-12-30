@@ -18,7 +18,7 @@ export interface ClothingItem {
 }
 
 export interface Order {
-  id?: string;
+  id: string;
   userId: string;
   customerName: string;
   customerEmail: string;
