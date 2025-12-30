@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Order, ClothingItem } from '@/app/lib/order';
+import { Order, ClothingItem } from '@/app/types/order';
 import Header from '@/app/components/layout/Header';
 import ProtectedRoute from '@/app/components/ProtectedRoutes';
 
