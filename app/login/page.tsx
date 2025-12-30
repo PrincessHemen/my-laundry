@@ -88,7 +88,7 @@ export default function LoginPage() {
     } catch (err: any) {
       if (err instanceof z.ZodError) {
         // Show first validation error
-        setMsg({ type: "error", text: err.errors[0].message });
+        setMsg({ type: "error", text: err.issues[0].message });
         return;
       }
       throw err; // rethrow for Firebase error handling
