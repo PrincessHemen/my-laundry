@@ -39,6 +39,8 @@ export default function LoginPage() {
     document.title = "Login | MyLaundry";
   }, [])
 
+  const router = useRouter(); 
+
   const [action, setAction] = useState<AuthAction>("Login");
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -165,8 +167,6 @@ export default function LoginPage() {
       setLoading(false)
     }
   }
-
-  const router = useRouter(); 
 
   // If User already logged in
 
