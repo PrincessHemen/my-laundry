@@ -26,6 +26,7 @@ export interface Order {
   pickupAddress: string;
   dropoffAddress: string;
   pickupDate: string;
+  dropoffDate: string;
   createdAt: string;
   updatedAt?: string;
   items: ClothingItem[];
