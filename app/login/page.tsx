@@ -309,7 +309,7 @@ export default function LoginPage() {
         {/* SHOW CURRENT USER */}
         {user && (
           <p className="mt-4 text-gray-700 font-semibold text-sm">
-            Signed in as: {user.displayName || user.email}
+            Signed in as: {user?.displayName || user?.email}
           </p>
         )}
 
