@@ -174,7 +174,9 @@ export default function LoginPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="p-6 bg-white shadow rounded text-center">
-          <p className="mb-4">You are already signed in.</p>
+          <p className="mb-4 font-semibold">
+            Signed in as: {user.displayName || user.email}
+          </p>
           <button
             onClick={() => router.push("/dashboard")}
             className="px-4 py-2 bg-indigo-900 text-white rounded"
@@ -305,13 +307,6 @@ export default function LoginPage() {
             {loading ? "Please wait..." : action === "Sign Up" ? "Sign In with Google" : "Log in with Google"}
         
         </button>
-
-        {/* SHOW CURRENT USER */}
-        {user && (
-          <p className="mt-4 text-gray-700 font-semibold text-sm">
-            Signed in as: {user?.displayName || user?.email}
-          </p>
-        )}
 
       </div>
     </div>
