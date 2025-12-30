@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { adminDb } from '@/app/lib/firebaseAdmin';
-import { Order, ClothingItem } from '@/app/lib/order';
+import { Order, ClothingItem } from '@/app/types/order';
 import { v4 as uuidv4 } from 'uuid';
 
 // Helper: validate required fields
