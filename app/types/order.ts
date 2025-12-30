@@ -22,7 +22,6 @@ export interface Order {
   userId: string;
   customerName: string;
   customerEmail: string;
-  customerPhone: string;
   pickupAddress: string;
   dropoffAddress: string;
   pickupDate: string;
