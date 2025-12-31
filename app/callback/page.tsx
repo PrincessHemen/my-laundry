@@ -22,7 +22,7 @@ function CallbackContent() {
     const verifyAndCreateOrder = async () => {
       try {
         // Verify payment
-        const verifyRes = await fetch(`/api/payments/verify?reference=${reference}`);
+        const verifyRes = await fetch(`/api/payment/verify?reference=${reference}`);
         const verifyData = await verifyRes.json();
         if (!verifyRes.ok) throw new Error(verifyData.error || 'Payment verification failed');
         if (verifyData.status !== 'success') throw new Error('Payment not successful');
