@@ -1,9 +1,11 @@
-export const runtime = 'nodejs';
-
 import { NextResponse } from 'next/server';
 import { adminDb } from '@/app/lib/firebaseAdmin';
 import { Order, ClothingItem } from '@/app/types/order';
 import { v4 as uuidv4 } from 'uuid';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 
 // Helper: validate required fields
 function validateOrderBody(body: any): { valid: boolean; message?: string } {
