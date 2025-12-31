@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { auth } from '@/app/lib/firebase';
 
-export default function OrderCallbackPage() {
+// 1️⃣ Move the component that uses useSearchParams into a separate component
+function CallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<'loading' | 'success' | 'failed'>('loading');
@@ -20,13 +21,13 @@ export default function OrderCallbackPage() {
 
     const verifyAndCreateOrder = async () => {
       try {
-        // 1️⃣ Verify payment
+        // Verify payment
         const verifyRes = await fetch(`/api/payments/verify?reference=${reference}`);
         const verifyData = await verifyRes.json();
         if (!verifyRes.ok) throw new Error(verifyData.error || 'Payment verification failed');
         if (verifyData.status !== 'success') throw new Error('Payment not successful');
 
-        // 2️⃣ Prepare order data
+        // Prepare order data
         const currentUser = auth.currentUser;
         if (!currentUser) throw new Error('User not logged in');
 
@@ -43,7 +44,7 @@ export default function OrderCallbackPage() {
           paymentReference: reference,
         };
 
-        // 3️⃣ POST to /api/orders
+        // POST to /api/orders
         const orderRes = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -53,7 +54,7 @@ export default function OrderCallbackPage() {
         const orderData = await orderRes.json();
         if (!orderRes.ok) throw new Error(orderData.error || 'Failed to create order');
 
-        // 4️⃣ Redirect to order detail
+        // Redirect to order detail
         router.replace(`/orders/${orderData.order.id}`);
       } catch (err: any) {
         setError(err.message || 'Something went wrong');
@@ -68,4 +69,13 @@ export default function OrderCallbackPage() {
   if (status === 'failed') return <p className="text-red-500">Error: {error}</p>;
 
   return null;
+}
+
+// 2️⃣ Wrap it in Suspense in the default export
+export default function OrderCallbackPage() {
+  return (
+    <Suspense fallback={<div>Loading payment details...</div>}>
+      <CallbackContent />
+    </Suspense>
+  );
 }
