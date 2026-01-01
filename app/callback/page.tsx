@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { auth } from '@/app/lib/firebase';
+import { User } from 'firebase/auth';
 
 // 1️⃣ Move the component that uses useSearchParams into a separate component
 function CallbackContent() {
@@ -28,8 +29,14 @@ function CallbackContent() {
         if (verifyData.status !== 'success') throw new Error('Payment not successful');
 
         // Prepare order data
-        const currentUser = auth.currentUser;
-        if (!currentUser) throw new Error('User not logged in');
+        const currentUser = await new Promise<any>((resolve, reject) => {
+          const unsubscribe = auth.onAuthStateChanged((user: User | null) => {
+            unsubscribe();
+            if (user) resolve(user);
+            else reject(new Error('User not logged in'));
+          });
+        });
+        
 
         const orderBody = {
           userId: currentUser.uid,
