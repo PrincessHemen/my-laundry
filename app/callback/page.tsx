@@ -78,7 +78,7 @@ function CallbackContent() {
         if (!orderRes.ok) throw new Error(orderData.error || 'Failed to create order');
 
         // Redirect to order detail page
-        router.replace(`/orders/${orderData.order.id}`);
+        router.replace(`/dashboard/orders/${orderData.order.id}`);
       } catch (err: any) {
         setError(err.message || 'Something went wrong');
         setStatus('failed');
