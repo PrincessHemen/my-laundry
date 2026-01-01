@@ -60,7 +60,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
     }
 
-    const snapshot = await adminDb
+    const snapshot = await adminDB
       .collection('orders')
       .where('userId', '==', userId)
       .orderBy('createdAt', 'desc')
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
     };
 
     // Save to Firestore
-    await adminDb.collection('orders').doc(newOrder.id).set(newOrder);
+    await adminDB.collection('orders').doc(newOrder.id).set(newOrder);
 
     return NextResponse.json({ order: newOrder }, { status: 201 });
   } catch (error: any) {
