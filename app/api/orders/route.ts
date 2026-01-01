@@ -87,6 +87,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
+    // Map Paystack status to OrderStatus
+    let orderStatus: Order['status'] = 'IN_PROGRESS';
+    if (body.paymentStatus === 'success') {
+      orderStatus = 'PAID';
+    } else if (body.paymentStatus === 'failed') {
+      orderStatus = 'FAILED';
+    }
+
     const newOrder: Order = {
       id: uuidv4(), // generate a unique ID
       userId: body.userId,
@@ -100,7 +108,7 @@ export async function POST(request: Request) {
       updatedAt: new Date().toISOString(),
       items: body.items as ClothingItem[],
       totalAmount: body.totalAmount,
-      status: 'PAID', // assuming full payment upfront via Paystack
+      status: orderStatus, // assuming full payment upfront via Paystack
       paymentReference: body.paymentReference || null
     };
 

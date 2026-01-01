@@ -1,4 +1,4 @@
-export type OrderStatus = 'PAID' | 'IN_PROGRESS' | 'DELIVERED';
+export type OrderStatus = 'PAID' | 'IN_PROGRESS' | 'FAILED';
 
 export type ClothingItemType =
   | 'shirt'

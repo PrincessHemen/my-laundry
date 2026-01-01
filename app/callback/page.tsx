@@ -51,7 +51,22 @@ function CallbackContent() {
           body: JSON.stringify(orderBody),
         });
 
-        const orderData = await orderRes.json();
+        //const orderData = await orderRes.json();
+        // 🔍 LOG THE RAW RESPONSE BEFORE PARSING
+        const responseText = await orderRes.text();
+        console.log('Raw response from /api/orders:', responseText);
+        console.log('Response status:', orderRes.status);
+        console.log('Response ok:', orderRes.ok);
+
+        // Now try to parse it
+        let orderData;
+        try {
+          orderData = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('Failed to parse response as JSON:', parseError);
+          throw new Error(`Server returned invalid JSON: ${responseText.substring(0, 200)}`);
+        }
+
         if (!orderRes.ok) throw new Error(orderData.error || 'Failed to create order');
 
         // Redirect to order detail

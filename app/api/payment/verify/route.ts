@@ -18,9 +18,9 @@ export async function GET(req: Request) {
     return NextResponse.json({
       status: payment.status,
       reference: payment.reference,
-      amount: payment.amount,
+      amount: payment.amount / 100,
       email: payment.customer.email,
-      metadata: payment.metadata ?? null,
+      metadata: typeof payment.metadata === 'string' ? {} : payment.metadata,
     });
   } catch (err: any) {
     console.error('Paystack verify error:', err);

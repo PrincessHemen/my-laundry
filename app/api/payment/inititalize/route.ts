@@ -1,7 +1,8 @@
-// app/api/payments/initialize/route.ts
+// app/api/payment/initialize/route.ts
 import { NextResponse } from 'next/server';
 import { initializePayment } from '@/app/types/payment';
 import { adminAuth } from '@/app/lib/firebaseAdmin';
+
 
 export async function POST(req: Request) {
   try {
