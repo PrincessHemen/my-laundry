@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 
     // Fetch single order by ID
     if (orderId) {
-        const doc = await adminDb.collection('orders').doc(orderId).get();
+        const doc = await adminDB.collection('orders').doc(orderId).get();
         if (!doc.exists) {
           return NextResponse.json({ error: 'Order not found' }, { status: 404 });
         }
