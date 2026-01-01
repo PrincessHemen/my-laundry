@@ -42,6 +42,7 @@ function CallbackContent() {
           items: JSON.parse(localStorage.getItem('orderItems') || '[]'),
           totalAmount: verifyData.amount / 100,
           paymentReference: reference,
+          paymentStatus: verifyData.status,
         };
 
         // POST to /api/orders

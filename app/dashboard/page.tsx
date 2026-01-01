@@ -95,7 +95,7 @@ const DashboardPage = () => {
                   <div
                     key={order.id}
                     className="bg-blue-900/50 border border-cyan-500/40 rounded-lg p-4 flex justify-between items-center hover:shadow-lg transition cursor-pointer"
-                    onClick={() => router.push(`/dashboard/${order.id}`)}
+                    onClick={() => router.push(`/dashboard/orders/${order.id}`)}
                   >
                     <div>
                       <p className="font-semibold">Order ID: {order.id}</p>
