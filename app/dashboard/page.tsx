@@ -20,7 +20,6 @@ const DashboardPage = () => {
     document.title = "Dashboard | MyLaundry";
   }, [])
 
-
   const [user, setUser] = useState<User | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

@@ -7,6 +7,11 @@ import Header from '@/app/components/layout/Header';
 import ProtectedRoute from '@/app/components/ProtectedRoutes';
 
 const OrderDetailsPage = () => {
+
+  useEffect(() => {
+    document.title = "My Order | MyLaundry";
+  }, [])
+
   const router = useRouter();
   const params = useParams();
   const { orderID } = params as { orderID: string };

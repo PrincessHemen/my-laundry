@@ -172,19 +172,21 @@ export default function LoginPage() {
 
   if (user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="p-6 bg-white shadow rounded text-center">
+
+      <div className="min-h-screen justify-center items-center flex flex-col bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-900 text-[#7231EC] relative overflow-hidden">
+        <div className="p-6 bg-white shadow rounded justify-center items-center w-1/2 text-center">
           <p className="mb-4 font-semibold">
             Signed in as: {user.displayName || user.email}
           </p>
           <button
             onClick={() => router.push("/dashboard")}
-            className="px-4 py-2 bg-indigo-900 text-white rounded"
+            className="px-4 py-2 bg-indigo-900 text-white rounded hover:cursor-pointer"
           >
             Go to Dashboard
           </button>
         </div>
       </div>
+      
     );
   }
 

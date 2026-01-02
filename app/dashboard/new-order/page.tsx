@@ -1,12 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { initializePayment } from '@/app/types/payment';
 import { ClothingItem } from '@/app/types/order';
 import { auth } from '@/app/lib/firebase';
+import ProtectedRoute from '@/app/components/ProtectedRoutes';
 
 export default function NewOrderPage() {
+
+  useEffect(() => {
+    document.title = "New Orders | MyLaundry";
+  }, [])
+
   const router = useRouter();
 
   // Order state
@@ -75,6 +81,8 @@ export default function NewOrderPage() {
   };
 
   return (
+    <ProtectedRoute>
+
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-semibold mb-4">New Laundry Order</h1>
 
@@ -181,5 +189,7 @@ export default function NewOrderPage() {
         {loading ? 'Processing...' : 'Pay & Create Order'}
       </button>
     </div>
+
+    </ProtectedRoute>
   );
 }
