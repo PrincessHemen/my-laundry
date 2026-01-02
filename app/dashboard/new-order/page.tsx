@@ -83,112 +83,151 @@ export default function NewOrderPage() {
   return (
     <ProtectedRoute>
 
-    <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-4">New Laundry Order</h1>
+<div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-900 text-white relative overflow-hidden">
 
-      {/* Pickup/Dropoff Addresses */}
-      <div className="mb-4">
-        <label className="block mb-1">Pickup Address</label>
-        <input
-          type="text"
-          value={pickupAddress}
-          onChange={(e) => setPickupAddress(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block mb-1">Dropoff Address</label>
-        <input
-          type="text"
-          value={dropoffAddress}
-          onChange={(e) => setDropoffAddress(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-      </div>
-
-      {/* Pickup/Dropoff Dates */}
-      <div className="mb-4">
-        <label className="block mb-1">Pickup Date</label>
-        <input
-          type="date"
-          value={pickupDate}
-          onChange={(e) => setPickupDate(e.target.value)}
-          className="w-full border p-2 rounded"
-          min={formatDate(today)}
-          max={formatDate(twoWeeksFromToday)}
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block mb-1">Dropoff Date</label>
-        <input
-          type="date"
-          value={dropoffDate}
-          onChange={(e) => setDropoffDate(e.target.value)}
-          className="w-full border p-2 rounded"
-          min={dropoffMinDate}
-        />
-      </div>
-
-      {/* Items */}
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold mb-2">Items</h2>
-        {items.map((item, idx) => (
-          <div key={idx} className="flex gap-2 mb-2">
-            <select
-              value={item.type}
-              onChange={(e) => updateItem(idx, 'type', e.target.value)}
-              className="border p-1 rounded"
+        <main className="max-w-4xl mx-auto w-full px-6 py-10 relative z-10">
+          
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-2xl font-semibold italic uppercase tracking-wider text-cyan-400">
+              New Laundry Order
+            </h1>
+            <button 
+              onClick={() => router.push('/dashboard')}
+              className="text-sm text-cyan-300 hover:underline hover:cursor-pointer"
             >
-              <option value="shirt">Shirt</option>
-              <option value="trouser">Trouser</option>
-              <option value="tshirt">T-Shirt</option>
-              <option value="dress">Dress</option>
-              <option value="suit">Suit</option>
-              <option value="jacket">Jacket</option>
-              <option value="bedsheet">Bedsheet</option>
-              <option value="towel">Towel</option>
-              <option value="curtains">Curtains</option>
-            </select>
-            <input
-              type="number"
-              min={1}
-              value={item.quantity}
-              onChange={(e) => updateItem(idx, 'quantity', Number(e.target.value))}
-              className="w-20 border p-1 rounded"
-            />
-            <input
-              type="number"
-              min={0}
-              value={item.pricePerUnit}
-              onChange={(e) => updateItem(idx, 'pricePerUnit', Number(e.target.value))}
-              className="w-24 border p-1 rounded"
-            />
-            <button type="button" onClick={() => removeItem(idx)} className="text-red-500">
-              Remove
+              Back to Dashboard
             </button>
           </div>
-        ))}
-        <button type="button" onClick={addItem} className="bg-green-500 text-white px-3 py-1 rounded mt-2">
-          Add Item
-        </button>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Logistics Section */}
+            <div className="bg-blue-900/50 border border-cyan-500/40 rounded-xl p-6 shadow-xl">
+              <h2 className="text-lg font-medium mb-4 text-cyan-200 border-b border-cyan-500/20 pb-2">Logistics</h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-blue-200 mb-1">Pickup Address</label>
+                  <input
+                    type="text"
+                    value={pickupAddress}
+                    onChange={(e) => setPickupAddress(e.target.value)}
+                    className="w-full bg-blue-950/50 border border-cyan-500/30 rounded-md p-2 text-white focus:outline-none focus:border-cyan-400 transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-blue-200 mb-1">Dropoff Address</label>
+                  <input
+                    type="text"
+                    value={dropoffAddress}
+                    onChange={(e) => setDropoffAddress(e.target.value)}
+                    className="w-full bg-blue-950/50 border border-cyan-500/30 rounded-md p-2 text-white focus:outline-none focus:border-cyan-400 transition"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-blue-200 mb-1">Pickup Date</label>
+                    <input
+                      type="date"
+                      value={pickupDate}
+                      onChange={(e) => setPickupDate(e.target.value)}
+                      className="w-full bg-blue-950/50 border border-cyan-500/30 rounded-md p-2 text-white focus:outline-none focus:border-cyan-400 transition"
+                      min={formatDate(today)}
+                      max={formatDate(twoWeeksFromToday)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-widest text-blue-200 mb-1">Dropoff Date</label>
+                    <input
+                      type="date"
+                      value={dropoffDate}
+                      onChange={(e) => setDropoffDate(e.target.value)}
+                      className="w-full bg-blue-950/50 border border-cyan-500/30 rounded-md p-2 text-white focus:outline-none focus:border-cyan-400 transition"
+                      min={dropoffMinDate}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Items Section */}
+            <div className="bg-blue-900/50 border border-cyan-500/40 rounded-xl p-6 shadow-xl flex flex-col">
+              <h2 className="text-lg font-medium mb-4 text-cyan-200 border-b border-cyan-500/20 pb-2">Your Bag</h2>
+              
+              <div className="space-y-3 mb-6 flex-grow max-h-[300px] overflow-y-auto pr-2">
+                {items.length === 0 && (
+                  <p className="text-blue-300 text-sm italic">No items added yet...</p>
+                )}
+                {items.map((item, idx) => (
+                  <div key={idx} className="flex gap-2 items-center bg-blue-950/40 border border-white/10 p-2 rounded-lg group">
+                    <select
+                      value={item.type}
+                      onChange={(e) => updateItem(idx, 'type', e.target.value)}
+                      className="bg-transparent text-sm flex-grow focus:outline-none"
+                    >
+                      <option className="bg-blue-900" value="shirt">Shirt</option>
+                      <option className="bg-blue-900" value="trouser">Trouser</option>
+                      <option className="bg-blue-900" value="tshirt">T-Shirt</option>
+                      <option className="bg-blue-900" value="dress">Dress</option>
+                      <option className="bg-blue-900" value="suit">Suit</option>
+                      <option className="bg-blue-900" value="jacket">Jacket</option>
+                      <option className="bg-blue-900" value="bedsheet">Bedsheet</option>
+                      <option className="bg-blue-900" value="towel">Towel</option>
+                      <option className="bg-blue-900" value="curtains">Curtains</option>
+                    </select>
+                    
+                    <input
+                      type="number"
+                      min={1}
+                      value={item.quantity}
+                      onChange={(e) => updateItem(idx, 'quantity', Number(e.target.value))}
+                      className="w-14 bg-blue-950/50 border border-cyan-500/20 rounded p-1 text-center text-sm"
+                    />
+
+                    <span className="text-xs text-blue-300">@ ₦{item.pricePerUnit}</span>
+
+                    <button 
+                      type="button" 
+                      onClick={() => removeItem(idx)} 
+                      className="text-red-400 hover:text-red-300 font-bold px-2"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <button 
+                type="button" 
+                onClick={addItem} 
+                className="w-full py-2 border border-dashed border-cyan-500/50 rounded-lg text-cyan-400 hover:bg-cyan-500/10 transition text-sm mb-4"
+              >
+                + Add Another Item
+              </button>
+
+              <div className="mt-auto border-t border-cyan-500/20 pt-4">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="font-semibold text-blue-100">Total Amount:</span>
+                  <span className="text-xl font-bold text-cyan-400">
+                    ₦{items.reduce((sum, item) => sum + item.quantity * item.pricePerUnit, 0).toLocaleString()}
+                  </span>
+                </div>
+
+                <button
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="w-full bg-cyan-500 hover:bg-cyan-600 text-blue-950 font-bold py-3 rounded-md transition shadow-[0_0_15px_rgba(6,182,212,0.4)] disabled:opacity-50"
+                >
+                  {loading ? 'Processing...' : 'Pay & Create Order'}
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </main>
       </div>
-
-      {/* Total & Submit */}
-      <p className="mb-4">
-        <strong>Total:</strong> ₦
-        {items.reduce((sum, item) => sum + item.quantity * item.pricePerUnit, 0).toLocaleString()}
-      </p>
-
-      <button
-        onClick={handleSubmit}
-        disabled={loading}
-        className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2 rounded"
-      >
-        {loading ? 'Processing...' : 'Pay & Create Order'}
-      </button>
-    </div>
 
     </ProtectedRoute>
   );
