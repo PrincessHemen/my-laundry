@@ -13,6 +13,11 @@ export default function NewOrderPage() {
     document.title = "New Orders | MyLaundry";
   }, [])
 
+  useEffect(() => {
+    // User came back from Paystack or refreshed the page
+    setLoading(false);
+  }, []);
+
   const router = useRouter();
 
   // Order state
@@ -30,9 +35,15 @@ export default function NewOrderPage() {
 
   const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
+  // Calculate the minimum allowed dropoff (3 days after pickup)
   const dropoffMinDate = pickupDate
     ? formatDate(new Date(new Date(pickupDate).setDate(new Date(pickupDate).getDate() + 3)))
     : formatDate(today);
+
+  // Calculate the maximum allowed dropoff (14 days after pickup)
+  const dropoffMaxDate = pickupDate
+    ? formatDate(new Date(new Date(pickupDate).setDate(new Date(pickupDate).getDate() + 14)))
+    : formatDate(twoWeeksFromToday);
 
   // Item management
   const addItem = () => setItems([...items, { type: 'shirt', quantity: 1, pricePerUnit: 500 }]);
@@ -146,6 +157,7 @@ export default function NewOrderPage() {
                       onChange={(e) => setDropoffDate(e.target.value)}
                       className="w-full bg-blue-950/50 border border-cyan-500/30 rounded-md p-2 text-white focus:outline-none focus:border-cyan-400 transition"
                       min={dropoffMinDate}
+                      max={dropoffMaxDate}
                     />
                   </div>
                 </div>
