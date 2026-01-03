@@ -100,7 +100,7 @@ const DashboardPage = () => {
                       <p className="font-semibold">Order ID: {order.id}</p>
                       <p>Pickup Date: {order.pickupDate}</p>
                       <p>Status: {order.status}</p>
-                      <p>Total: ₦{order.totalAmount.toLocaleString()}</p>
+                      <p>Total: ₦{(order.totalAmount * 100).toLocaleString()}</p>
                     </div>
                     <div className="text-cyan-300 underline">View Details</div>
                   </div>

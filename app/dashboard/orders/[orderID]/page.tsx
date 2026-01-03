@@ -74,7 +74,7 @@ const OrderDetailsPage = () => {
               <p className="mb-2"><span className="font-semibold">Pickup Date:</span> {order.pickupDate}</p>
               <p className="mb-2"><span className="font-semibold">Pickup Address:</span> {order.pickupAddress}</p>
               <p className="mb-2"><span className="font-semibold">Dropoff Address:</span> {order.dropoffAddress}</p>
-              <p className="mb-4"><span className="font-semibold">Total Amount:</span> ₦{order.totalAmount.toLocaleString()}</p>
+              <p className="mb-4"><span className="font-semibold">Total Amount:</span> ₦{(order.totalAmount * 100).toLocaleString()}</p>
 
               <h2 className="text-xl font-semibold mb-2">Items:</h2>
               <table className="w-full border-collapse">
