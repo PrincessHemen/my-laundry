@@ -2,8 +2,6 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { auth } from '@/app/lib/firebase';
-import { User } from 'firebase/auth';
 
 // 1️⃣ Move the component that uses useSearchParams into a separate component
 function CallbackContent() {
@@ -20,72 +18,40 @@ function CallbackContent() {
       return;
     }
 
-    const verifyAndCreateOrder = async () => {
+    let attempts = 0;
+
+    const confirmWithRetry = async () => {
       try {
-        // Verify payment
-        const verifyRes = await fetch(`/api/payment/verify?reference=${reference}`);
-        const verifyData = await verifyRes.json();
-        if (!verifyRes.ok) throw new Error(verifyData.error || 'Payment verification failed');
-        if (verifyData.status !== 'success') throw new Error('Payment not successful');
+        const res = await fetch(
+          `/api/payment/verify?reference=${reference}`
+        );
+        const data = await res.json();
 
-        // Prepare order data
-        const currentUser = await new Promise<any>((resolve, reject) => {
-          const unsubscribe = auth.onAuthStateChanged((user: User | null) => {
-            unsubscribe();
-            if (user) resolve(user);
-            else reject(new Error('User not logged in'));
-          });
-        });
-        
-
-        const orderBody = {
-          userId: currentUser.uid,
-          customerName: currentUser.displayName || 'Unknown',
-          customerEmail: currentUser.email!,
-          pickupAddress: localStorage.getItem('pickupAddress'),
-          dropoffAddress: localStorage.getItem('dropoffAddress'),
-          pickupDate: localStorage.getItem('pickupDate'),
-          dropoffDate: localStorage.getItem('dropoffDate'), 
-          items: JSON.parse(localStorage.getItem('orderItems') || '[]'),
-          totalAmount: verifyData.amount / 100,
-          paymentReference: reference,
-          paymentStatus: verifyData.status,
-        };
-
-        // POST to /api/orders
-        const orderRes = await fetch('/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderBody),
-        });
-
-        //const orderData = await orderRes.json();
-        // 🔍 LOG THE RAW RESPONSE BEFORE PARSING
-        const responseText = await orderRes.text();
-        console.log('Raw response from /api/orders:', responseText);
-        console.log('Response status:', orderRes.status);
-        console.log('Response ok:', orderRes.ok);
-
-        // Now try to parse it
-        let orderData;
-        try {
-          orderData = JSON.parse(responseText);
-        } catch (parseError) {
-          console.error('Failed to parse response as JSON:', parseError);
-          throw new Error(`Server returned invalid JSON: ${responseText.substring(0, 200)}`);
+        if (res.ok && data.status === 'success') {
+          setStatus('success');
+          router.replace(`/dashboard/orders/${data.orderId}`);
+          return;
         }
 
-        if (!orderRes.ok) throw new Error(orderData.error || 'Failed to create order');
+        throw new Error('Not confirmed yet');
+      } catch {
+        attempts++;
 
-        // Redirect to order detail page
-        router.replace(`/dashboard/orders/${orderData.order.id}`);
-      } catch (err: any) {
-        setError(err.message || 'Something went wrong');
-        setStatus('failed');
+        if (attempts < 5) {
+          setTimeout(confirmWithRetry, 3000); // retry every 3s
+        } else {
+          setError(
+            'Payment received. Order confirmation may take a moment. Please check your orders shortly.'
+          );
+          setStatus('failed');
+        }
       }
     };
 
-    verifyAndCreateOrder();
+    
+
+    confirmWithRetry();
+
   }, [searchParams, router]);
 
   if (status === 'loading') return <div className="min-h-screen justify-center items-center flex flex-col  bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-900 relative overflow-hidden">

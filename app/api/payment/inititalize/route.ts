@@ -2,8 +2,11 @@
 import { NextResponse } from 'next/server';
 import { initializePayment } from '@/app/types/payment';
 import { getAdminAuth } from '@/app/lib/firebaseAdmin';
+import { getAdminDb } from '@/app/lib/firebaseAdmin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 const adminAuth = getAdminAuth();
+const db = getAdminDb(); 
 
 export async function POST(req: Request) {
   try {
@@ -27,7 +30,16 @@ export async function POST(req: Request) {
 
     /* ------------------ BODY ------------------ */
     const body = await req.json();
-    const { amount } = body;
+    const {
+      amount,
+      pickupAddress,
+      dropoffAddress,
+      pickupDate,
+      dropoffDate,
+      items,
+      customerName,
+    } = body;
+    
 
     if (!amount || typeof amount !== 'number' || amount <= 0) {
       return NextResponse.json(
@@ -36,12 +48,31 @@ export async function POST(req: Request) {
       );
     }
 
+    const orderRef = db.collection('orders').doc();
+
+    await orderRef.set({
+      id: orderRef.id,
+      userId: decodedUser.uid,
+      customerName,
+      customerEmail: decodedUser.email,
+      pickupAddress,
+      dropoffAddress,
+      pickupDate,
+      dropoffDate,
+      items,
+      totalAmount: amount,
+      status: 'IN_PROGRESS',
+      createdAt: FieldValue.serverTimestamp(),
+    });
+
     /* ---------------- PAYSTACK ---------------- */
     const payment = await initializePayment({
       email: decodedUser.email,
       amount,
+      reference: orderRef.id, 
       metadata: {
         userId: decodedUser.uid,
+        orderId: orderRef.id,
       },
     });
 

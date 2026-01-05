@@ -18,6 +18,7 @@ function getHeaders() {
 export async function initializePayment(data: {
   email: string;
   amount: number; // in NAIRA
+  reference: any;
   metadata?: Record<string, any>;
 }) {
   const res = await fetch(`${PAYSTACK_BASE_URL}/transaction/initialize`, {

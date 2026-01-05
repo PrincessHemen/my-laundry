@@ -35,7 +35,7 @@ export default function NewOrderPage() {
 
   const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
-  // Calculate the minimum allowed dropoff (3 days after pickup)
+  // Calculate the minimum allowed dropoff (3 days after today)
   const dropoffMinDate = pickupDate
     ? formatDate(new Date(new Date(pickupDate).setDate(new Date(pickupDate).getDate() + 3)))
     : formatDate(today);
