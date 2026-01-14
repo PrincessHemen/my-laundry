@@ -8,8 +8,14 @@ export const runtime = 'nodejs';
 const db = getAdminDb();
 
 export async function POST(req: Request) {
+
+  console.log('🔥 WEBHOOK HIT');
+
   const secret = process.env.PAYSTACK_SECRET_KEY!;
   const signature = req.headers.get('x-paystack-signature');
+
+  // 🔎 Log signature header
+  console.log('🔑 Paystack Signature Header:', signature);
 
   const body = await req.text();
 
@@ -19,9 +25,14 @@ export async function POST(req: Request) {
     .update(body)
     .digest('hex');
 
+  // 🔎 Log computed hash
+  console.log('🧮 Computed Hash:', hash);
+
   if (hash !== signature) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
+
+  console.log('✅ SIGNATURE VERIFIED');
 
   const event = JSON.parse(body);
 
@@ -32,6 +43,8 @@ export async function POST(req: Request) {
 
   const data = event.data;
   const reference = data.reference;
+
+  console.log('📦 Payment Reference:', reference);
 
   try {
     const orderRef = db.collection('orders').doc(reference);
@@ -57,6 +70,7 @@ export async function POST(req: Request) {
         updatedAt: FieldValue.serverTimestamp(),
     });
       
+    console.log('🎉 ORDER MARKED PAID:', reference);
 
     return NextResponse.json({ received: true });
   } catch (err) {
