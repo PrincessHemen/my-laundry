@@ -12,7 +12,6 @@ const adminDB = getAdminDb();
 function validateOrderBody(body: any): { valid: boolean; message?: string } {
   const requiredFields = [
     'userId',
-    'customerName',
     'customerEmail',
     'pickupAddress',
     'dropoffAddress',
@@ -99,7 +98,6 @@ export async function POST(request: Request) {
     const newOrder: Order = {
       id: uuidv4(), // generate a unique ID
       userId: body.userId,
-      customerName: body.customerName,
       customerEmail: body.customerEmail,
       pickupAddress: body.pickupAddress,
       dropoffAddress: body.dropoffAddress,

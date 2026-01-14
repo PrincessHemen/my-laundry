@@ -29,7 +29,7 @@ function CallbackContent() {
 
         if (res.ok && data.status === 'success') {
           setStatus('success');
-          router.replace(`/dashboard/orders/${data.orderId}`);
+          router.replace(`/dashboard/orders/${data.reference}`);
           return;
         }
 

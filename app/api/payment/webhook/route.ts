@@ -38,10 +38,15 @@ export async function POST(req: Request) {
     const existing = await orderRef.get();
 
     // 3️⃣ Idempotency (Paystack retries)
-    if (existing.exists) {
+    if (!existing.exists) {
+      console.error('Order not found for reference:', reference);
       return NextResponse.json({ received: true });
     }
-
+    
+    // ✅ Correct idempotency check
+    if (existing.data()?.status === 'PAID') {
+      return NextResponse.json({ received: true });
+    }
     const metadata =
       typeof data.metadata === 'string' ? {} : data.metadata;
 
