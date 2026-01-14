@@ -1,4 +1,6 @@
-// app/types/payment.ts
+// app/server/payment.ts
+
+import 'server-only';
 
 const PAYSTACK_BASE_URL = 'https://api.paystack.co';
 
@@ -37,6 +39,7 @@ export async function initializePayment(data: {
     throw new Error(result.message || 'Paystack initialization failed');
   }
 
+
   return result.data as {
     authorization_url: string;
     reference: string;
@@ -68,3 +71,4 @@ export async function verifyPayment(reference: string) {
     metadata?: Record<string, any>;
   };
 }
+

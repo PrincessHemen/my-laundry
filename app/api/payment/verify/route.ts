@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { verifyPayment } from '@/app/types/payment';
+import { verifyPayment } from '@/app/server/payment';
 
 export async function GET(req: Request) {
   try {

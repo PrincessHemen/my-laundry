@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { initializePayment } from '@/app/types/payment';
 import { ClothingItem } from '@/app/types/order';
 import { auth } from '@/app/lib/firebase';
 import ProtectedRoute from '@/app/components/ProtectedRoutes';
@@ -60,6 +59,8 @@ export default function NewOrderPage() {
       alert('Please log in');
       return;
     }
+  
+    const token = await auth.currentUser.getIdToken();
 
     if (!pickupAddress || !dropoffAddress || !pickupDate || !dropoffDate || items.length === 0) {
       alert('Please fill all fields and add at least one item');
@@ -67,29 +68,36 @@ export default function NewOrderPage() {
     }
 
     const totalAmount = items.reduce((sum, item) => sum + item.quantity * item.pricePerUnit, 0);
-
-    // Store order info locally for callback
-    localStorage.setItem('orderItems', JSON.stringify(items));
-    localStorage.setItem('pickupAddress', pickupAddress);
-    localStorage.setItem('dropoffAddress', dropoffAddress);
-    localStorage.setItem('pickupDate', pickupDate);
-    localStorage.setItem('dropoffDate', dropoffDate);
-
+  
     setLoading(true);
-    try {
-      const payment = await initializePayment({
-        email: auth.currentUser.email!,
+  
+    const res = await fetch('/api/payment/initialize', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
         amount: totalAmount,
-        metadata: { userId: auth.currentUser.uid },
-      });
-
-      window.location.href = payment.authorization_url;
-    } catch (err: any) {
-      console.error('Payment init error:', err);
-      alert(err.message || 'Payment initialization failed');
+        pickupAddress,
+        dropoffAddress,
+        pickupDate,
+        dropoffDate,
+        items,
+      }),
+    });
+  
+    const data = await res.json();
+  
+    if (!res.ok) {
       setLoading(false);
+      alert(data.error || 'Payment failed');
+      return;
     }
+  
+    window.location.href = data.authorizationUrl;
   };
+  
 
   return (
     <ProtectedRoute>
