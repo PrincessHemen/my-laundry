@@ -53,7 +53,6 @@ export async function POST(req: Request) {
     await orderRef.set({
       id: orderRef.id,
       userId: decodedUser.uid,
-      customerName,
       customerEmail: decodedUser.email,
       pickupAddress,
       dropoffAddress,
