@@ -48,27 +48,15 @@ export async function POST(req: Request) {
 
   try {
     const orderRef = db.collection('orders').doc(reference);
-    const existing = await orderRef.get();
 
-    // 3️⃣ Idempotency (Paystack retries)
-    if (!existing.exists) {
-      console.error('Order not found for reference:', reference);
-      return NextResponse.json({ received: true });
-    }
-    
-    // ✅ Correct idempotency check
-    if (existing.data()?.status === 'PAID') {
-      return NextResponse.json({ received: true });
-    }
-    const metadata =
-      typeof data.metadata === 'string' ? {} : data.metadata;
-
-    // 4️⃣ Create order (SERVER-SIDE ONLY)
-    await orderRef.update({
+    await orderRef.set(
+      {
         status: 'PAID',
         paymentReference: reference,
         updatedAt: FieldValue.serverTimestamp(),
-    });
+      },
+      { merge: true }
+    );    
       
     console.log('🎉 ORDER MARKED PAID:', reference);
 
