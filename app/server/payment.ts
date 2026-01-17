@@ -29,6 +29,7 @@ export async function initializePayment(data: {
     body: JSON.stringify({
       email: data.email,
       amount: data.amount * 100, // convert to kobo
+      reference: data.reference,
       metadata: data.metadata,
     }),
   });

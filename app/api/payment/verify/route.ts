@@ -18,6 +18,7 @@ export async function GET(req: Request) {
     return NextResponse.json({
       status: payment.status,
       reference: payment.reference,
+      orderId: payment.metadata?.orderId,
       amount: payment.amount / 100,
       email: payment.customer.email,
       metadata: typeof payment.metadata === 'string' ? {} : payment.metadata,

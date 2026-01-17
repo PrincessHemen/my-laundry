@@ -29,7 +29,8 @@ function CallbackContent() {
 
         if (res.ok && data.status === 'success') {
           setStatus('success');
-          router.replace(`/dashboard/orders/${data.reference}`);
+          // ✅ Redirect to the orderId from the database, NOT the payment reference
+          router.replace(`/dashboard/orders/${data.orderId}`);
           return;
         }
 

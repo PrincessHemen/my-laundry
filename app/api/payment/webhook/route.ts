@@ -43,22 +43,26 @@ export async function POST(req: Request) {
 
   const data = event.data;
   const reference = data.reference;
+  const firestoreOrderId = data.metadata?.orderId;
+
+  if (!firestoreOrderId) {
+    console.error('No orderId in metadata');
+    return NextResponse.json({ received: true }); // Still return 200 to Paystack
+  }
 
   console.log('📦 Payment Reference:', reference);
 
   try {
-    const orderRef = db.collection('orders').doc(reference);
+    // ✅ Use the orderId from metadata to find the document
+    const orderRef = db.collection('orders').doc(firestoreOrderId);
 
-    await orderRef.set(
-      {
+    await orderRef.set({
         status: 'PAID',
-        paymentReference: reference,
+        paymentReference: reference, // Store Paystack's ref for records
         updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true }
-    );    
+    }, { merge: true });   
       
-    console.log('🎉 ORDER MARKED PAID:', reference);
+    console.log('🎉 ORDER DOCUMENT MARKED PAID:', firestoreOrderId);
 
     return NextResponse.json({ received: true });
   } catch (err) {
